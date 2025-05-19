@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register and show Students</title>
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<h1>Register a Student</h1>
+
+<form id="studentForm">
+    <label for="major">Major:</label>
+    <input type="text" id="major" name="major"><br><br>
+
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name"><br><br>
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" name="age"><br><br>
+
+    <button type="submit">Register</button>
+</form>
+
+<h2>Student list</h2>
+
+<table id="studentTable">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Major</th>
+        <th>Name</th>
+        <th>Age</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script>
+    async function registerStudent(event) {
+        event.preventDefault();
+
+        const major = document.getElementById("major").value;
+        const name = document.getElementById("name").value;
+        const age = document.getElementById("age").value;
+
+        const studentData = {
+            major: major,
+            name: name,
+            age: parseInt(age)
+        };
+
+        try {
+            const response = await fetch("/api/createStudent", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(studentData)
+            });
+
+            if (response.ok) {
+                alert("Student registered successfully!");
+                document.getElementById("studentForm").reset();
+                await displayStudents();
+            } else {
+                alert("Could not register student: " + response.statusText);
+            }
+        } catch (error) {
+            alert("Network error: " + error);
+        }
+    }
+
+    async function displayStudents() {
+        try {
+            const response = await fetch("/api/getStudentList");
+            if (response.ok) {
+                const data = await response.json();
+                const tableBody = document.getElementById("studentTable").querySelector("tbody");
+                tableBody.innerHTML = "";
+
+                data.result.students.forEach(student => {
+                    const row = tableBody.insertRow();
+                    row.insertCell().textContent = student.id;
+                    row.insertCell().textContent = student.major;
+                    row.insertCell().textContent = student.name;
+                    row.insertCell().textContent = student.age;
+                });
+            } else {
+                alert("Could not get student list: " + response.statusText);
+            }
+        } catch (error) {
+            alert("Network error: " + error);
+        }
+    }
+
+    document.getElementById("studentForm").addEventListener("submit", registerStudent);
+
+    window.onload = displayStudents;
+</script>
+</body>
+</html>

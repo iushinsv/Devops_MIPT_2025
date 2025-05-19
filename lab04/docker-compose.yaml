@@ -1,0 +1,26 @@
+services:
+  system:
+    image: system
+    build:
+      context: .
+      dockerfile: system.Dockerfile
+  builder:
+    image: build
+    user: "${UID}:${GID}"
+    build:
+      context: .
+      dockerfile: build.Dockerfile
+    volumes:
+      - ./app:/myvol:rw
+    depends_on:
+      - system
+
+  runner:
+    user: "${UID}:${GID}"
+    build:
+      context: .
+      dockerfile: run.Dockerfile
+    volumes:
+      - ./app:/myvol:rw
+    depends_on:
+      - builder 

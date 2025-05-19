@@ -1,0 +1,39 @@
+
+services:
+  builder:
+    user: "${UID}:${GID}"
+    image: builder_service
+    build:
+      context: .
+      dockerfile: build.Dockerfile
+    volumes:
+      - ./app:/myvol:rw
+
+  runner:
+    user: "${UID}:${GID}"
+    build:
+      context: .
+      dockerfile: run.Dockerfile
+    volumes:
+      - ./app:/myvol:rw
+    depends_on:
+      - builder 
+
+  # common_builder:
+  #   user: "${UID}:${GID}"
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: base
+  #   volumes:
+  #     - ./app:/myvol:rw
+
+  # common_runner:
+  #   user: "${UID}:${GID}"
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: runner
+  #   volumes:
+  #     - ./app:/myvol:rw
+    

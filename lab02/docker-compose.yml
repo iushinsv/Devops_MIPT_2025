@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16.8-alpine3.20
+    container_name: studentls-postgres
+    restart: on-failure
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: studentls
+      POSTGRES_USER: studentls_user
+      POSTGRES_PASSWORD: studentls_secret
+    volumes:
+      - studentls-postgres-data:/var/lib/postgresql/data
+    networks:
+      - studentls-internal
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: on-failure
+    networks:
+      - studentls-internal
+      - studentls-external
+    depends_on:
+      - postgres
+
+  nginx:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    container_name: studentls-nginx
+    restart: on-failure
+    ports:
+      - "80:80"
+    volumes:
+      - studentls-nginx-html:/usr/share/nginx/html
+    networks:
+      - studentls-external
+    depends_on:
+      - backend
+
+
+volumes:
+  studentls-postgres-data:
+  studentls-nginx-html:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./nginx/html
+
+networks:
+  studentls-internal:
+  studentls-external:
