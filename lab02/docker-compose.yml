@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:16.8-alpine3.20
@@ -6,9 +8,9 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: studentls
-      POSTGRES_USER: studentls_user
-      POSTGRES_PASSWORD: studentls_secret
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - studentls-postgres-data:/var/lib/postgresql/data
     networks:
@@ -40,7 +42,6 @@ services:
       - studentls-external
     depends_on:
       - backend
-
 
 volumes:
   studentls-postgres-data:
